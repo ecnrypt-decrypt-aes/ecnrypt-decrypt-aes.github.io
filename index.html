@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        #root {display: block;}
+        
+        #inputEncrypt {width: 600px;  margin-top: 40px;}
+        #resultEncrypt {width: 735px; height: 100px; font-size: larger;}
+
+        #inputDecrypt {width: 600px; margin-top: 40px;}
+        #resultDecrypt {width: 735px; height: 100px; font-size: larger;}
+
+        .all-element {font-family: monospace;}
+        .all-element:disabled {background: rgb(230, 230, 230); color: rgb(37, 37, 37);}
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js" integrity="sha512-E8QSvWZ0eCLGk4km3hxSsNmGWbLtSCSUcewDQPQWZF6pEU8GlT8a5fF32wOl1i8ftdMhssTrF/OhyGWwonTcXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        var password = "";
+        function setPassword(){
+            let infoPassword = document.getElementById("infoPassword");
+            password =  document.getElementById("inputPassword").value;
+            
+            if (password.length > 0) {
+                infoPassword.innerHTML = "Password OK";
+                infoPassword.style.color = "green";
+                document.getElementById("inputEncrypt").disabled = false;
+                document.getElementById("inputDecrypt").disabled = false;
+                document.getElementById("buttonEncrypt").disabled = false;
+                document.getElementById("buttonDecrypt").disabled = false;
+            } else {
+                infoPassword.innerHTML = "Password cannot be empty string";
+                infoPassword.style.color = "red";
+            }
+            document.getElementById("submitPassword").disabled = true;
+        }
+
+        var viewPassword = false;
+        function viewHidePassword(parameter) {
+            viewPassword = !viewPassword;
+            if (viewPassword) {
+                document.getElementById("inputPassword").type = "text";
+            } else {
+                document.getElementById("inputPassword").type = "password";
+            }
+            if (parameter == 'viatext') {
+                document.getElementById("checkboxViewHidePassword").checked = viewPassword;
+            }
+        }
+
+        function handleChangePassword() {
+            document.getElementById("inputEncrypt").disabled = true;
+            document.getElementById("inputDecrypt").disabled = true;
+            document.getElementById("buttonEncrypt").disabled = true;
+            document.getElementById("buttonDecrypt").disabled = true;
+            document.getElementById("infoPassword").innerHTML = "";
+            document.getElementById("submitPassword").disabled = false;
+            document.getElementById("inputEncrypt").value = "";
+            document.getElementById("inputDecrypt").value = "";
+            clearValue('resultEncrypt');
+            clearValue('resultDecrypt');
+        }
+
+        var inputEncryptValue = "";
+        var encryptValue = "";
+        function processEncrypt(){
+            inputEncryptValue = document.getElementById("inputEncrypt").value;
+            encryptValue = CryptoJS.AES.encrypt(inputEncryptValue, password);
+            document.getElementById("resultEncrypt").value = encryptValue;
+        }
+
+        var inputDecryptValue = "";
+        var decryptValue = "";
+        function processDecrypt(){
+            inputDecryptValue = document.getElementById("inputDecrypt").value;
+            decryptValue = CryptoJS.AES.decrypt(inputDecryptValue, password);
+            document.getElementById("resultDecrypt").value = hex2ascii(decryptValue);
+        }
+
+        // helper
+        function hex2ascii(hexx) {
+            var hex = hexx.toString();
+            var str = '';
+            for (var i = 0; i < hex.length; i += 2)
+                str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+            return str;
+        }
+
+        function clearValue(elementID) {
+            document.getElementById(elementID).value = "";
+        }
+
+        window.onload = function(){
+            var input = document.getElementById("inputPassword");
+
+            input.addEventListener("keyup", function(event) {
+                if (event.keyCode === 13) {
+                    event.preventDefault();
+                    setPassword();
+                }
+            });
+            
+            document.getElementById("inputEncrypt").disabled = true;
+            document.getElementById("inputDecrypt").disabled = true;
+            document.getElementById("buttonEncrypt").disabled = true;
+            document.getElementById("buttonDecrypt").disabled = true;
+        }
+    </script>
+    <title>Decrypt Encrypt</title>
+</head>
+<body>
+    <h1>Hello</h1>
+    <div id="root">
+        <div>
+             <input id="inputPassword" type="password" autocomplete="off" onmouseover="handleChangePassword();"/>
+             <button id="submitPassword" onclick="setPassword();">set password</button>
+             <label id="infoPassword" ></label>
+        </div>
+        <div>
+            <input id="checkboxViewHidePassword" type="checkbox" autocomplete="off" onclick="viewHidePassword();"/>
+            <label style="font-size: smaller;" onclick="viewHidePassword('viatext');" >view password</label>
+        </div>
+        <div id="topRow">
+            <label >Encrypt</label>
+            <input id="inputEncrypt" class="all-element" type="text" autocomplete="off" onclick="clearValue('resultEncrypt')"/>
+            <button id="buttonEncrypt" class="all-element" onclick="processEncrypt();">encrypt</button>
+        </div>
+            <textarea class="all-element" id="resultEncrypt" style="resize: none;" autocomplete="off" disabled></textarea>
+        <div id="bottomRow">
+            <label >Decrypt</label>
+            <input id="inputDecrypt" class="all-element" type="text" autocomplete="off" onclick="clearValue('resultDecrypt')"/>
+            <button id="buttonDecrypt" class="all-element" onclick="processDecrypt();">decrypt</button>
+        </div>
+            <textarea class="all-element" id="resultDecrypt" style="resize: none;" autocomplete="off"  disabled></textarea>
+    </div>
+    
+</body>
+</html>
